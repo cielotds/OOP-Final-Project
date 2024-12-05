@@ -1214,6 +1214,215 @@ public class Dashboard extends javax.swing.JFrame {
         jSpinner12.setValue(0);
    
     }
+
+   public void setImage() {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/Images/Siomai Rice.png"));
+        ImageIcon icon1 = new ImageIcon(getClass().getResource("/Images/Chicken Finger Rice.png"));
+        ImageIcon icon2 = new ImageIcon(getClass().getResource("/Images/Shanghai Rice.png"));
+        ImageIcon icon3 = new ImageIcon(getClass().getResource("/Images/Fish Fillet Rice.png"));
+        ImageIcon icon4 = new ImageIcon(getClass().getResource("/Images/Small Fries.png"));
+        ImageIcon icon5 = new ImageIcon(getClass().getResource("/Images/Big Fries.png"));
+        ImageIcon icon6 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 16oz.png"));
+        ImageIcon icon7 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 22oz.png"));
+        ImageIcon icon8 = new ImageIcon(getClass().getResource("/Images/Combo Snack 16oz.png"));
+        ImageIcon icon9 = new ImageIcon(getClass().getResource("/Images/Combo Snack 22oz.png"));
+        ImageIcon icon10 = new ImageIcon(getClass().getResource("/Images/Burger.png"));
+        ImageIcon icon11 = new ImageIcon(getClass().getResource("/Images/Burger with cheese.png"));
+
+                
+        
+
+        Image img = icon.getImage().getScaledInstance(jLabel1.getWidth(),jLabel1.getHeight(), Image.SCALE_SMOOTH);
+        Image img1 = icon1.getImage().getScaledInstance(jLabel2.getWidth(),jLabel2.getHeight(), Image.SCALE_SMOOTH);
+        Image img2 = icon2.getImage().getScaledInstance(jLabel9.getWidth(),jLabel9.getHeight(), Image.SCALE_SMOOTH);
+        Image img3 = icon3.getImage().getScaledInstance(jLabel11.getWidth(),jLabel11.getHeight(), Image.SCALE_SMOOTH);
+        Image img4 = icon4.getImage().getScaledInstance(jLabel6.getWidth(),jLabel6.getHeight(), Image.SCALE_SMOOTH);
+        Image img5 = icon5.getImage().getScaledInstance(jLabel13.getWidth(),jLabel13.getHeight(), Image.SCALE_SMOOTH);
+        Image img6 = icon6.getImage().getScaledInstance(jLabel15.getWidth(),jLabel15.getHeight(), Image.SCALE_SMOOTH);
+        Image img7 = icon7.getImage().getScaledInstance(jLabel17.getWidth(),jLabel17.getHeight(), Image.SCALE_SMOOTH);
+        Image img8 = icon8.getImage().getScaledInstance(jLabel19.getWidth(),jLabel19.getHeight(), Image.SCALE_SMOOTH);
+        Image img9 = icon9.getImage().getScaledInstance(jLabel21.getWidth(),jLabel21.getHeight(), Image.SCALE_SMOOTH);
+        Image img10 = icon10.getImage().getScaledInstance(jLabel23.getWidth(),jLabel23.getHeight(), Image.SCALE_SMOOTH);
+        Image img11 = icon11.getImage().getScaledInstance(jLabel25.getWidth(),jLabel25.getHeight(), Image.SCALE_SMOOTH);
+
+        
+        
+        jLabel1.setIcon(new ImageIcon(img));
+        jLabel2.setIcon(new ImageIcon(img1));
+        jLabel9.setIcon(new ImageIcon(img2));
+        jLabel11.setIcon(new ImageIcon(img3));
+        jLabel6.setIcon(new ImageIcon(img4));
+        jLabel13.setIcon(new ImageIcon(img5));
+        jLabel15.setIcon(new ImageIcon(img6));
+        jLabel17.setIcon(new ImageIcon(img7));
+        jLabel19.setIcon(new ImageIcon(img8));
+        jLabel21.setIcon(new ImageIcon(img9));
+        jLabel23.setIcon(new ImageIcon(img10));
+        jLabel25.setIcon(new ImageIcon(img11));
+
+        
+   }
+
+   public void addTable(int Qty, String Name, double Price) {
+    // Check if the quantity is zero or negative
+    if (Qty <= 0) {
+        JOptionPane.showMessageDialog(null, "Quantity must be greater than zero.", "Error", JOptionPane.ERROR_MESSAGE);
+        return; 
+    }
+
+    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+    DecimalFormat df = new DecimalFormat("#0.00");
+
+    boolean itemExists = false; 
+
+    // Loop through the table to check for the item
+    for (int row = 0; row < jTable1.getRowCount(); row++) {
+        if (Name.equals(jTable1.getValueAt(row, 1))) {
+            // Update the quantity and total price for the existing item
+            int currentQty = (int) jTable1.getValueAt(row, 0);
+            double currentTotalPrice = Double.parseDouble(jTable1.getValueAt(row, 2).toString());
+
+            int newQty = currentQty + Qty;
+            double newTotalPrice = currentTotalPrice + (Price * Qty);
+
+            // Update the table values
+            jTable1.setValueAt(newQty, row, 0);
+            jTable1.setValueAt(df.format(newTotalPrice), row, 2);
+
+            itemExists = true;
+            break;
+        }
+    }
+
+    // If the item does not exist, add it as a new row
+    if (!itemExists) {
+        Vector<Object> v = new Vector<>();
+        v.add(Qty);
+        v.add(Name);
+        v.add(df.format(Price * Qty)); 
+        dt.addRow(v);
+    }
+}
+
+    
+    public void calculateAmount() {
+        int numOfRow =jTable1.getRowCount();
+        double tot = 0.0;
+        
+        for (int i = 0; i < numOfRow; i++) {
+            double value = Double.valueOf(jTable1.getValueAt(i, 2).toString());
+            
+            tot += value;
+        }
+        
+        DecimalFormat df = new DecimalFormat("#0.00");
+        total.setText(df.format(tot));
+        
+    }
+    
+    public String getOrderItems() {
+    StringBuilder items = new StringBuilder();
+    // Loop through your table model to gather items
+    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+    for (int i = 0; i < jTable1.getRowCount(); i++) {
+        items.append(dt.getValueAt(i, 1).toString()).append(", ");
+    }
+    return items.toString();
+    }
+   
+   public double calculateTotalPrice() {
+    double total = 0.0;
+    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+
+    for (int i = 0; i < dt.getRowCount(); i++) {
+        String amountStr = dt.getValueAt(i, 2).toString(); // Get amount as String
+        try {
+            double amount = Double.parseDouble(amountStr); // Convert String to Double
+            total += amount; // Add to total
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing amount: " + amountStr);
+            e.printStackTrace(); 
+        }
+    }
+    return total;
+}
+   public void completeOrder() {
+    System.out.println("Complete Order button clicked."); 
+    Connection con = getCon();
+    if (con == null) {
+        System.out.println("Database connection failed.");
+        return; 
+    }
+
+    String orderItems = getOrderItems();
+    double totalPrice = calculateTotalPrice();
+
+    String sql = "INSERT INTO orders (order_items, total_price, status) VALUES (?, ?, ?)";
+    
+    try (PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        pstmt.setString(1, orderItems);
+        pstmt.setDouble(2, totalPrice);
+        pstmt.setString(3, "not paid");
+
+        // Execute the insert statement
+        int affectedRows = pstmt.executeUpdate(); 
+
+        if (affectedRows > 0) {
+            ResultSet generatedKeys = pstmt.getGeneratedKeys(); 
+            if (generatedKeys.next()) {
+                int orderId = generatedKeys.getInt(1); 
+                printReceipt(orderId); 
+            } else {
+                System.out.println("No order ID generated.");
+            }
+        } else {
+            System.out.println("Insert failed, no rows affected.");
+        }
+
+        JOptionPane.showMessageDialog(null, "Order completed successfully!");
+    } catch (SQLException e) {
+        e.printStackTrace(); // Print stack trace for debugging
+        JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage());
+    }
+   }
+   
+    
+        public void printReceipt(int orderId) {
+        Date dd = new Date();
+            SimpleDateFormat datef = new SimpleDateFormat("yyyy-mm-dd");
+            SimpleDateFormat timef = new SimpleDateFormat("hh:mm:ss a");
+                String date = datef.format(dd);
+                String time = timef.format(dd);
+                
+            
+        jTextPane1.setText(" \t   Good House Burger \n");
+        jTextPane1.setText(jTextPane1.getText() + "\tErmita, Balayan, Batangas");
+        
+        jTextPane1.setText(jTextPane1.getText() + "\n\nORDER ID: " + orderId );
+        jTextPane1.setText(jTextPane1.getText() + "\n" + date + "                                             " + time);
+        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
+        jTextPane1.setText(jTextPane1.getText() + "\nQTY                ITEM                                        AMT\n");
+        
+        
+            
+            
+            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+            
+            
+                for (int i = 0; i < jTable1.getRowCount(); i++) {
+                    String qty = dt.getValueAt(i, 0).toString();
+                    String itm = dt.getValueAt(i, 1).toString();
+                    String amt = dt.getValueAt(i, 2).toString();
+                    
+                    jTextPane1.setText(jTextPane1.getText()+ qty + "\t"+ itm + "\t" + amt + "\n");
+                }
+                
+        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
+        jTextPane1.setText(jTextPane1.getText() + "\nTOTAL:                                                             " + total.getText());
+        jTextPane1.setText(jTextPane1.getText() + "\n------------------------THANK YOU--------------------------");
+        }
+
+
     private void btnRiceBowlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiceBowlActionPerformed
         // TODO add your handling code here:
         jTabbedPane1.setSelectedIndex(0);
@@ -1578,53 +1787,7 @@ public void completeOrder() {
         }
     }//GEN-LAST:event_btnPrintActionPerformed
     
-    public void setImage() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/Images/Siomai Rice.png"));
-        ImageIcon icon1 = new ImageIcon(getClass().getResource("/Images/Chicken Finger Rice.png"));
-        ImageIcon icon2 = new ImageIcon(getClass().getResource("/Images/Shanghai Rice.png"));
-        ImageIcon icon3 = new ImageIcon(getClass().getResource("/Images/Fish Fillet Rice.png"));
-        ImageIcon icon4 = new ImageIcon(getClass().getResource("/Images/Small Fries.png"));
-        ImageIcon icon5 = new ImageIcon(getClass().getResource("/Images/Big Fries.png"));
-        ImageIcon icon6 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 16oz.png"));
-        ImageIcon icon7 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 22oz.png"));
-        ImageIcon icon8 = new ImageIcon(getClass().getResource("/Images/Combo Snack 16oz.png"));
-        ImageIcon icon9 = new ImageIcon(getClass().getResource("/Images/Combo Snack 22oz.png"));
-        ImageIcon icon10 = new ImageIcon(getClass().getResource("/Images/Burger.png"));
-        ImageIcon icon11 = new ImageIcon(getClass().getResource("/Images/Burger with cheese.png"));
-
-                
-        
-
-        Image img = icon.getImage().getScaledInstance(jLabel1.getWidth(),jLabel1.getHeight(), Image.SCALE_SMOOTH);
-        Image img1 = icon1.getImage().getScaledInstance(jLabel2.getWidth(),jLabel2.getHeight(), Image.SCALE_SMOOTH);
-        Image img2 = icon2.getImage().getScaledInstance(jLabel9.getWidth(),jLabel9.getHeight(), Image.SCALE_SMOOTH);
-        Image img3 = icon3.getImage().getScaledInstance(jLabel11.getWidth(),jLabel11.getHeight(), Image.SCALE_SMOOTH);
-        Image img4 = icon4.getImage().getScaledInstance(jLabel6.getWidth(),jLabel6.getHeight(), Image.SCALE_SMOOTH);
-        Image img5 = icon5.getImage().getScaledInstance(jLabel13.getWidth(),jLabel13.getHeight(), Image.SCALE_SMOOTH);
-        Image img6 = icon6.getImage().getScaledInstance(jLabel15.getWidth(),jLabel15.getHeight(), Image.SCALE_SMOOTH);
-        Image img7 = icon7.getImage().getScaledInstance(jLabel17.getWidth(),jLabel17.getHeight(), Image.SCALE_SMOOTH);
-        Image img8 = icon8.getImage().getScaledInstance(jLabel19.getWidth(),jLabel19.getHeight(), Image.SCALE_SMOOTH);
-        Image img9 = icon9.getImage().getScaledInstance(jLabel21.getWidth(),jLabel21.getHeight(), Image.SCALE_SMOOTH);
-        Image img10 = icon10.getImage().getScaledInstance(jLabel23.getWidth(),jLabel23.getHeight(), Image.SCALE_SMOOTH);
-        Image img11 = icon11.getImage().getScaledInstance(jLabel25.getWidth(),jLabel25.getHeight(), Image.SCALE_SMOOTH);
-
-        
-        
-        jLabel1.setIcon(new ImageIcon(img));
-        jLabel2.setIcon(new ImageIcon(img1));
-        jLabel9.setIcon(new ImageIcon(img2));
-        jLabel11.setIcon(new ImageIcon(img3));
-        jLabel6.setIcon(new ImageIcon(img4));
-        jLabel13.setIcon(new ImageIcon(img5));
-        jLabel15.setIcon(new ImageIcon(img6));
-        jLabel17.setIcon(new ImageIcon(img7));
-        jLabel19.setIcon(new ImageIcon(img8));
-        jLabel21.setIcon(new ImageIcon(img9));
-        jLabel23.setIcon(new ImageIcon(img10));
-        jLabel25.setIcon(new ImageIcon(img11));
-
-        
-    }
+    
     
 
 
