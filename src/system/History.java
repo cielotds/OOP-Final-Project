@@ -234,10 +234,12 @@ public class History extends javax.swing.JFrame {
                 // Block the update only if the new status is the same as the current status
                 if (newStatus.equalsIgnoreCase(currentStatus)) {
                     JOptionPane.showMessageDialog(null, "The order is already marked as '" + currentStatus + "'.", "Error", JOptionPane.ERROR_MESSAGE);
+                    OrderID.setText("");
                     return;
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Order ID not found. Please check the ID and try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                OrderID.setText("");
                 return;
             }
         }
@@ -256,6 +258,7 @@ public class History extends javax.swing.JFrame {
         }
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Error updating status: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        OrderID.setText("");
     }
 }
 
