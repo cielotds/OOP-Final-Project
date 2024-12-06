@@ -1222,26 +1222,54 @@ public class Dashboard extends javax.swing.JFrame {
         jSpinner12.setValue(0);
    
     }
-    private void btnRiceBowlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiceBowlActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(0);
-    }//GEN-LAST:event_btnRiceBowlActionPerformed
-
-    private void btnBestieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBestieActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(1);
-    }//GEN-LAST:event_btnBestieActionPerformed
-
-    private void btnComboSnackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComboSnackActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(2);
-    }//GEN-LAST:event_btnComboSnackActionPerformed
-
-    private void btnb1t1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnb1t1ActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(3);
-    }//GEN-LAST:event_btnb1t1ActionPerformed
     
+    public void setImage() {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/Images/Siomai Rice.png"));
+        ImageIcon icon1 = new ImageIcon(getClass().getResource("/Images/Chicken Finger Rice.png"));
+        ImageIcon icon2 = new ImageIcon(getClass().getResource("/Images/Shanghai Rice.png"));
+        ImageIcon icon3 = new ImageIcon(getClass().getResource("/Images/Fish Fillet Rice.png"));
+        ImageIcon icon4 = new ImageIcon(getClass().getResource("/Images/Small Fries.png"));
+        ImageIcon icon5 = new ImageIcon(getClass().getResource("/Images/Big Fries.png"));
+        ImageIcon icon6 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 16oz.png"));
+        ImageIcon icon7 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 22oz.png"));
+        ImageIcon icon8 = new ImageIcon(getClass().getResource("/Images/Combo Snack 16oz.png"));
+        ImageIcon icon9 = new ImageIcon(getClass().getResource("/Images/Combo Snack 22oz.png"));
+        ImageIcon icon10 = new ImageIcon(getClass().getResource("/Images/Burger.png"));
+        ImageIcon icon11 = new ImageIcon(getClass().getResource("/Images/Burger with cheese.png"));
+
+                
+        
+
+        Image img = icon.getImage().getScaledInstance(jLabel1.getWidth(),jLabel1.getHeight(), Image.SCALE_SMOOTH);
+        Image img1 = icon1.getImage().getScaledInstance(jLabel2.getWidth(),jLabel2.getHeight(), Image.SCALE_SMOOTH);
+        Image img2 = icon2.getImage().getScaledInstance(jLabel9.getWidth(),jLabel9.getHeight(), Image.SCALE_SMOOTH);
+        Image img3 = icon3.getImage().getScaledInstance(jLabel11.getWidth(),jLabel11.getHeight(), Image.SCALE_SMOOTH);
+        Image img4 = icon4.getImage().getScaledInstance(jLabel6.getWidth(),jLabel6.getHeight(), Image.SCALE_SMOOTH);
+        Image img5 = icon5.getImage().getScaledInstance(jLabel13.getWidth(),jLabel13.getHeight(), Image.SCALE_SMOOTH);
+        Image img6 = icon6.getImage().getScaledInstance(jLabel15.getWidth(),jLabel15.getHeight(), Image.SCALE_SMOOTH);
+        Image img7 = icon7.getImage().getScaledInstance(jLabel17.getWidth(),jLabel17.getHeight(), Image.SCALE_SMOOTH);
+        Image img8 = icon8.getImage().getScaledInstance(jLabel19.getWidth(),jLabel19.getHeight(), Image.SCALE_SMOOTH);
+        Image img9 = icon9.getImage().getScaledInstance(jLabel21.getWidth(),jLabel21.getHeight(), Image.SCALE_SMOOTH);
+        Image img10 = icon10.getImage().getScaledInstance(jLabel23.getWidth(),jLabel23.getHeight(), Image.SCALE_SMOOTH);
+        Image img11 = icon11.getImage().getScaledInstance(jLabel25.getWidth(),jLabel25.getHeight(), Image.SCALE_SMOOTH);
+
+        
+        
+        jLabel1.setIcon(new ImageIcon(img));
+        jLabel2.setIcon(new ImageIcon(img1));
+        jLabel9.setIcon(new ImageIcon(img2));
+        jLabel11.setIcon(new ImageIcon(img3));
+        jLabel6.setIcon(new ImageIcon(img4));
+        jLabel13.setIcon(new ImageIcon(img5));
+        jLabel15.setIcon(new ImageIcon(img6));
+        jLabel17.setIcon(new ImageIcon(img7));
+        jLabel19.setIcon(new ImageIcon(img8));
+        jLabel21.setIcon(new ImageIcon(img9));
+        jLabel23.setIcon(new ImageIcon(img10));
+        jLabel25.setIcon(new ImageIcon(img11));
+
+        
+    }
     
     public void addTable(int Qty, String Name, double Price) {
     // Check if the quantity is zero or negative
@@ -1395,6 +1423,29 @@ public void completeOrder() {
         JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage());
     }
 }
+
+    private void btnRiceBowlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiceBowlActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(0);
+    }//GEN-LAST:event_btnRiceBowlActionPerformed
+
+    private void btnBestieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBestieActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(1);
+    }//GEN-LAST:event_btnBestieActionPerformed
+
+    private void btnComboSnackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComboSnackActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(2);
+    }//GEN-LAST:event_btnComboSnackActionPerformed
+
+    private void btnb1t1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnb1t1ActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(3);
+    }//GEN-LAST:event_btnb1t1ActionPerformed
+    
+    
+    
 
 
 
@@ -1577,53 +1628,7 @@ public void completeOrder() {
         }
     }//GEN-LAST:event_btnPrintActionPerformed
     
-    public void setImage() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/Images/Siomai Rice.png"));
-        ImageIcon icon1 = new ImageIcon(getClass().getResource("/Images/Chicken Finger Rice.png"));
-        ImageIcon icon2 = new ImageIcon(getClass().getResource("/Images/Shanghai Rice.png"));
-        ImageIcon icon3 = new ImageIcon(getClass().getResource("/Images/Fish Fillet Rice.png"));
-        ImageIcon icon4 = new ImageIcon(getClass().getResource("/Images/Small Fries.png"));
-        ImageIcon icon5 = new ImageIcon(getClass().getResource("/Images/Big Fries.png"));
-        ImageIcon icon6 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 16oz.png"));
-        ImageIcon icon7 = new ImageIcon(getClass().getResource("/Images/Fries & Juice 22oz.png"));
-        ImageIcon icon8 = new ImageIcon(getClass().getResource("/Images/Combo Snack 16oz.png"));
-        ImageIcon icon9 = new ImageIcon(getClass().getResource("/Images/Combo Snack 22oz.png"));
-        ImageIcon icon10 = new ImageIcon(getClass().getResource("/Images/Burger.png"));
-        ImageIcon icon11 = new ImageIcon(getClass().getResource("/Images/Burger with cheese.png"));
-
-                
-        
-
-        Image img = icon.getImage().getScaledInstance(jLabel1.getWidth(),jLabel1.getHeight(), Image.SCALE_SMOOTH);
-        Image img1 = icon1.getImage().getScaledInstance(jLabel2.getWidth(),jLabel2.getHeight(), Image.SCALE_SMOOTH);
-        Image img2 = icon2.getImage().getScaledInstance(jLabel9.getWidth(),jLabel9.getHeight(), Image.SCALE_SMOOTH);
-        Image img3 = icon3.getImage().getScaledInstance(jLabel11.getWidth(),jLabel11.getHeight(), Image.SCALE_SMOOTH);
-        Image img4 = icon4.getImage().getScaledInstance(jLabel6.getWidth(),jLabel6.getHeight(), Image.SCALE_SMOOTH);
-        Image img5 = icon5.getImage().getScaledInstance(jLabel13.getWidth(),jLabel13.getHeight(), Image.SCALE_SMOOTH);
-        Image img6 = icon6.getImage().getScaledInstance(jLabel15.getWidth(),jLabel15.getHeight(), Image.SCALE_SMOOTH);
-        Image img7 = icon7.getImage().getScaledInstance(jLabel17.getWidth(),jLabel17.getHeight(), Image.SCALE_SMOOTH);
-        Image img8 = icon8.getImage().getScaledInstance(jLabel19.getWidth(),jLabel19.getHeight(), Image.SCALE_SMOOTH);
-        Image img9 = icon9.getImage().getScaledInstance(jLabel21.getWidth(),jLabel21.getHeight(), Image.SCALE_SMOOTH);
-        Image img10 = icon10.getImage().getScaledInstance(jLabel23.getWidth(),jLabel23.getHeight(), Image.SCALE_SMOOTH);
-        Image img11 = icon11.getImage().getScaledInstance(jLabel25.getWidth(),jLabel25.getHeight(), Image.SCALE_SMOOTH);
-
-        
-        
-        jLabel1.setIcon(new ImageIcon(img));
-        jLabel2.setIcon(new ImageIcon(img1));
-        jLabel9.setIcon(new ImageIcon(img2));
-        jLabel11.setIcon(new ImageIcon(img3));
-        jLabel6.setIcon(new ImageIcon(img4));
-        jLabel13.setIcon(new ImageIcon(img5));
-        jLabel15.setIcon(new ImageIcon(img6));
-        jLabel17.setIcon(new ImageIcon(img7));
-        jLabel19.setIcon(new ImageIcon(img8));
-        jLabel21.setIcon(new ImageIcon(img9));
-        jLabel23.setIcon(new ImageIcon(img10));
-        jLabel25.setIcon(new ImageIcon(img11));
-
-        
-    }
+    
     
 
 
