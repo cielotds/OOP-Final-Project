@@ -1284,13 +1284,21 @@ public class Dashboard extends javax.swing.JFrame {
     }
 }
 
+    
+    
     public double calculateAmount() {
     int numOfRow = jTable1.getRowCount();
     double tot = 0.0;
-   
+
     for (int i = 0; i < numOfRow; i++) {
-        double value = Double.parseDouble(jTable1.getValueAt(i, 2).toString());
-        tot += value;
+        
+        try {
+            double value = Double.parseDouble(jTable1.getValueAt(i, 2).toString());
+            tot += value;
+        } catch (NumberFormatException e) {
+            
+            System.err.println("Error parsing value at row " + i + ": " + e.getMessage());
+        }
     }
     return tot;
 }
@@ -1298,7 +1306,7 @@ public class Dashboard extends javax.swing.JFrame {
 public void updateTotal() {
     double totalAmount = calculateAmount();
     DecimalFormat df = new DecimalFormat("#0.00");
-    total.setText(df.format(totalAmount));
+    total.setText(df.format(totalAmount)); // Update the total display
 }
     
     
@@ -1436,18 +1444,16 @@ public void completeOrder() {
     }//GEN-LAST:event_btnAdd4ActionPerformed
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
-         DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-
-    
+        
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
     int selectedRow = jTable1.getSelectedRow();
 
-    
     if (selectedRow >= 0) {
-       
+        // Remove the selected row
         dt.removeRow(jTable1.convertRowIndexToModel(selectedRow));
-        calculateAmount(); 
+        // Update the total after removal
+        updateTotal(); 
     } else {
-       
         JOptionPane.showMessageDialog(null, "Please select an order to remove.", "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnRemoveActionPerformed
