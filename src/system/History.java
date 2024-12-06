@@ -26,6 +26,7 @@ public class History extends javax.swing.JFrame {
      */
     public History() {
         initComponents();
+        loadOrders();
     }
 
     /**
@@ -47,7 +48,6 @@ public class History extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
         DoneButton = new javax.swing.JButton();
-        btnRefresh = new javax.swing.JButton();
         jLabel26 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -62,7 +62,15 @@ public class History extends javax.swing.JFrame {
             new String [] {
                 "Order ID", "Date", "Total", "Status"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         historyTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 historyTableMouseClicked(evt);
@@ -134,16 +142,6 @@ public class History extends javax.swing.JFrame {
                 .addGap(35, 35, 35))
         );
 
-        btnRefresh.setBackground(new java.awt.Color(90, 149, 79));
-        btnRefresh.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
-        btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
-        btnRefresh.setText("Refresh");
-        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRefreshActionPerformed(evt);
-            }
-        });
-
         jLabel26.setFont(new java.awt.Font("Cambria", 1, 36)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(225, 82, 43));
         jLabel26.setText("HISTORY");
@@ -159,8 +157,7 @@ public class History extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(513, 513, 513)
-                                .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(662, 662, 662))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 811, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -179,16 +176,14 @@ public class History extends javax.swing.JFrame {
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 583, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(71, 71, 71))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void loadOrders() {
+    private void loadOrders() {
     Connection con = getCon(); 
     if (con == null) {
         JOptionPane.showMessageDialog(this, "Database connection failed.");
@@ -254,8 +249,10 @@ public class History extends javax.swing.JFrame {
 
         if (rowsAffected > 0) {
             JOptionPane.showMessageDialog(null, "Status updated successfully.");
+            OrderID.setText("");
         } else {
             JOptionPane.showMessageDialog(null, "Failed to update the order. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            OrderID.setText("");
         }
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(null, "Error updating status: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -280,11 +277,6 @@ public class History extends javax.swing.JFrame {
         loadOrders();
     }//GEN-LAST:event_DoneButtonActionPerformed
 
-    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        // TODO add your handling code here:
-        loadOrders();
-    }//GEN-LAST:event_btnRefreshActionPerformed
-
     private void historyTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_historyTableMouseClicked
         // TODO add your handling code here:
         int selectedRow = historyTable.getSelectedRow();
@@ -293,9 +285,7 @@ public class History extends javax.swing.JFrame {
     if (selectedRow >= 0) {
         // Get the value of the first column (Order ID) from the selected row
         Object orderId = historyTable.getValueAt(selectedRow, 0);
-
-        
-  OrderID.setText(orderId.toString());
+        OrderID.setText(orderId.toString());
     } else {
         
   OrderID.setText("");
@@ -342,7 +332,6 @@ public class History extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton DoneButton;
     private javax.swing.JTextPane OrderID;
-    private javax.swing.JButton btnRefresh;
     private javax.swing.JTable historyTable;
     private javax.swing.JButton jButton6;
     private javax.swing.JComboBox<String> jComboBox1;

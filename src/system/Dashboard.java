@@ -1088,7 +1088,15 @@ public class Dashboard extends javax.swing.JFrame {
             new String [] {
                 "Qty", "Item", "Amount"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel4.setFont(new java.awt.Font("Cambria", 1, 18)); // NOI18N
@@ -1214,8 +1222,356 @@ public class Dashboard extends javax.swing.JFrame {
         jSpinner12.setValue(0);
    
     }
+    private void btnRiceBowlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiceBowlActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(0);
+    }//GEN-LAST:event_btnRiceBowlActionPerformed
 
-   public void setImage() {
+    private void btnBestieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBestieActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(1);
+    }//GEN-LAST:event_btnBestieActionPerformed
+
+    private void btnComboSnackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComboSnackActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(2);
+    }//GEN-LAST:event_btnComboSnackActionPerformed
+
+    private void btnb1t1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnb1t1ActionPerformed
+        // TODO add your handling code here:
+        jTabbedPane1.setSelectedIndex(3);
+    }//GEN-LAST:event_btnb1t1ActionPerformed
+    
+    
+    public void addTable(int Qty, String Name, double Price) {
+    // Check if the quantity is zero or negative
+    if (Qty <= 0) {
+        JOptionPane.showMessageDialog(null, "Quantity must be greater than zero.", "Error", JOptionPane.ERROR_MESSAGE);
+        return; 
+    }
+
+    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+    DecimalFormat df = new DecimalFormat("#0.00");
+
+    boolean itemExists = false; 
+
+    // Loop through the table to check for the item
+    for (int row = 0; row < jTable1.getRowCount(); row++) {
+        if (Name.equals(jTable1.getValueAt(row, 1))) {
+            // Update the quantity and total price for the existing item
+            int currentQty = (int) jTable1.getValueAt(row, 0);
+            double currentTotalPrice = Double.parseDouble(jTable1.getValueAt(row, 2).toString());
+
+            int newQty = currentQty + Qty;
+            double newTotalPrice = currentTotalPrice + (Price * Qty);
+
+            // Update the table values
+            jTable1.setValueAt(newQty, row, 0);
+            jTable1.setValueAt(df.format(newTotalPrice), row, 2);
+
+            itemExists = true;
+            break;
+        }
+    }
+
+    // If the item does not exist, add it as a new row
+    if (!itemExists) {
+        Vector<Object> v = new Vector<>();
+        v.add(Qty);
+        v.add(Name);
+        v.add(df.format(Price * Qty)); 
+        dt.addRow(v);
+    }
+}
+
+    public double calculateAmount() {
+    int numOfRow = jTable1.getRowCount();
+    double tot = 0.0;
+   
+    for (int i = 0; i < numOfRow; i++) {
+        double value = Double.parseDouble(jTable1.getValueAt(i, 2).toString());
+        tot += value;
+    }
+    return tot;
+}
+
+public void updateTotal() {
+    double totalAmount = calculateAmount();
+    DecimalFormat df = new DecimalFormat("#0.00");
+    total.setText(df.format(totalAmount));
+}
+    
+    
+    
+        public void printReceipt(int orderId) {
+        Date dd = new Date();
+            SimpleDateFormat datef = new SimpleDateFormat("yyyy-mm-dd");
+            SimpleDateFormat timef = new SimpleDateFormat("hh:mm:ss a");
+                String date = datef.format(dd);
+                String time = timef.format(dd);
+                
+            
+        jTextPane1.setText(" \t   Good House Burger \n");
+        jTextPane1.setText(jTextPane1.getText() + "\tErmita, Balayan, Batangas");
+        
+        jTextPane1.setText(jTextPane1.getText() + "\n\nORDER ID: " + orderId );
+        jTextPane1.setText(jTextPane1.getText() + "\n" + date + "                                             " + time);
+        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
+        jTextPane1.setText(jTextPane1.getText() + "\nQTY                ITEM                                        AMT\n");
+        
+        
+            
+            
+            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+            
+            
+                for (int i = 0; i < jTable1.getRowCount(); i++) {
+                    String qty = dt.getValueAt(i, 0).toString();
+                    String itm = dt.getValueAt(i, 1).toString();
+                    String amt = dt.getValueAt(i, 2).toString();
+                    
+                    jTextPane1.setText(jTextPane1.getText()+ qty + "\t"+ itm + "\t" + amt + "\n");
+                }
+                
+        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
+        jTextPane1.setText(jTextPane1.getText() + "\nTOTAL:                                                             " + total.getText());
+        jTextPane1.setText(jTextPane1.getText() + "\n------------------------THANK YOU--------------------------");
+    }
+
+      private String getOrderItems() {
+    StringBuilder items = new StringBuilder();
+    // Loop through your table model to gather items
+    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+    for (int i = 0; i < jTable1.getRowCount(); i++) {
+        items.append(dt.getValueAt(i, 1).toString()).append(", ");
+    }
+    return items.toString();
+} 
+
+public void completeOrder() {
+    System.out.println("Complete Order button clicked."); 
+    Connection con = getCon();
+    if (con == null) {
+        System.out.println("Database connection failed.");
+        return; 
+    }
+
+    String orderItems = getOrderItems();
+    double totalPrice = calculateAmount();
+
+    String sql = "INSERT INTO orders (order_items, total_price, status) VALUES (?, ?, ?)";
+    
+    try (PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        pstmt.setString(1, orderItems);
+        pstmt.setDouble(2, totalPrice);
+        pstmt.setString(3, "not paid");
+
+        // Execute the insert statement
+        int affectedRows = pstmt.executeUpdate(); 
+
+        if (affectedRows > 0) {
+            ResultSet generatedKeys = pstmt.getGeneratedKeys(); 
+            if (generatedKeys.next()) {
+                int orderId = generatedKeys.getInt(1); 
+                printReceipt(orderId); 
+            } else {
+                System.out.println("No order ID generated.");
+            }
+        } else {
+            System.out.println("Insert failed, no rows affected.");
+        }
+
+        JOptionPane.showMessageDialog(null, "Order completed successfully!");
+    } catch (SQLException e) {
+        e.printStackTrace(); // Print stack trace for debugging
+        JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage());
+    }
+}
+
+
+
+            
+    private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner1.getValue().toString());
+        
+        
+        
+        addTable(qty, "Siomai Rice     ", 35.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd1ActionPerformed
+
+    private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
+        // TODO add your handling code here:
+         int qty = Integer.parseInt(jSpinner2.getValue().toString());
+        
+        
+        
+        addTable(qty, "Chicken Finger Rice", 40.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd2ActionPerformed
+
+    private void btnAdd3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd3ActionPerformed
+        // TODO add your handling code here:
+         int qty = Integer.parseInt(jSpinner3.getValue().toString());
+        
+        
+        
+        addTable(qty, "Shanghai Rice", 40.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd3ActionPerformed
+
+    private void btnAdd4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd4ActionPerformed
+        // TODO add your handling code here:
+         int qty = Integer.parseInt(jSpinner4.getValue().toString());
+        
+        
+        
+        addTable(qty, "Fish Fillet Rice", 40.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd4ActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+         DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+
+    
+    int selectedRow = jTable1.getSelectedRow();
+
+    
+    if (selectedRow >= 0) {
+       
+        dt.removeRow(jTable1.convertRowIndexToModel(selectedRow));
+        calculateAmount(); 
+    } else {
+       
+        JOptionPane.showMessageDialog(null, "Please select an order to remove.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_btnRemoveActionPerformed
+    
+    
+    
+    
+    private void btnCompleteOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompleteOrderActionPerformed
+                    // TODO add your handling code here:          
+        completeOrder(); 
+    }//GEN-LAST:event_btnCompleteOrderActionPerformed
+    
+    private void totalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_totalActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_totalActionPerformed
+
+    private void btnAdd5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd5ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner5.getValue().toString());
+        
+        
+        
+        addTable(qty, "Small Fries     ", 50.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd5ActionPerformed
+
+    private void btnAdd6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd6ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner6.getValue().toString());
+        
+        
+        
+        addTable(qty, "Big Fries    ", 100.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd6ActionPerformed
+
+    private void btnAdd7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd7ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner7.getValue().toString());
+        
+        
+        
+        addTable(qty, "16oz Fries & Juice", 30.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd7ActionPerformed
+
+    private void btnAdd8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd8ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner8.getValue().toString());
+        
+        
+        
+        addTable(qty, "22oz Fries & Juice", 35.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd8ActionPerformed
+
+    private void btnAdd9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd9ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner9.getValue().toString());
+        
+        
+        
+        addTable(qty, "Combo Snack 160z", 50.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd9ActionPerformed
+
+    private void btnAdd10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd10ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner10.getValue().toString());
+        
+        
+        
+        addTable(qty, "Combo Snack 22oz", 60.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd10ActionPerformed
+
+    private void btnAdd11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd11ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner11.getValue().toString());
+        
+        
+        
+        addTable(qty, "Burger       ", 40.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd11ActionPerformed
+
+    private void btnAdd12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd12ActionPerformed
+        // TODO add your handling code here:
+        int qty = Integer.parseInt(jSpinner12.getValue().toString());
+        
+        
+        
+        addTable(qty, "Burger w/ Cheese", 50.00);
+        updateTotal();
+        resetQty();
+    }//GEN-LAST:event_btnAdd12ActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        // TODO add your handling code here:
+        
+        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
+         dt.setRowCount(0);
+         
+         jTextPane1.setText("");
+         total.setText("");
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        try {
+            // TODO add your handling code here:
+            jTextPane1.print();
+        } catch (PrinterException ex) {
+            Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+    
+    public void setImage() {
         ImageIcon icon = new ImageIcon(getClass().getResource("/Images/Siomai Rice.png"));
         ImageIcon icon1 = new ImageIcon(getClass().getResource("/Images/Chicken Finger Rice.png"));
         ImageIcon icon2 = new ImageIcon(getClass().getResource("/Images/Shanghai Rice.png"));
@@ -1261,533 +1617,7 @@ public class Dashboard extends javax.swing.JFrame {
         jLabel25.setIcon(new ImageIcon(img11));
 
         
-   }
-
-   public void addTable(int Qty, String Name, double Price) {
-    // Check if the quantity is zero or negative
-    if (Qty <= 0) {
-        JOptionPane.showMessageDialog(null, "Quantity must be greater than zero.", "Error", JOptionPane.ERROR_MESSAGE);
-        return; 
     }
-
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-    DecimalFormat df = new DecimalFormat("#0.00");
-
-    boolean itemExists = false; 
-
-    // Loop through the table to check for the item
-    for (int row = 0; row < jTable1.getRowCount(); row++) {
-        if (Name.equals(jTable1.getValueAt(row, 1))) {
-            // Update the quantity and total price for the existing item
-            int currentQty = (int) jTable1.getValueAt(row, 0);
-            double currentTotalPrice = Double.parseDouble(jTable1.getValueAt(row, 2).toString());
-
-            int newQty = currentQty + Qty;
-            double newTotalPrice = currentTotalPrice + (Price * Qty);
-
-            // Update the table values
-            jTable1.setValueAt(newQty, row, 0);
-            jTable1.setValueAt(df.format(newTotalPrice), row, 2);
-
-            itemExists = true;
-            break;
-        }
-    }
-
-    // If the item does not exist, add it as a new row
-    if (!itemExists) {
-        Vector<Object> v = new Vector<>();
-        v.add(Qty);
-        v.add(Name);
-        v.add(df.format(Price * Qty)); 
-        dt.addRow(v);
-    }
-}
-
-    
-    public void calculateAmount() {
-        int numOfRow =jTable1.getRowCount();
-        double tot = 0.0;
-        
-        for (int i = 0; i < numOfRow; i++) {
-            double value = Double.valueOf(jTable1.getValueAt(i, 2).toString());
-            
-            tot += value;
-        }
-        
-        DecimalFormat df = new DecimalFormat("#0.00");
-        total.setText(df.format(tot));
-        
-    }
-    
-    public String getOrderItems() {
-    StringBuilder items = new StringBuilder();
-    // Loop through your table model to gather items
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-    for (int i = 0; i < jTable1.getRowCount(); i++) {
-        items.append(dt.getValueAt(i, 1).toString()).append(", ");
-    }
-    return items.toString();
-    }
-   
-   public double calculateTotalPrice() {
-    double total = 0.0;
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-
-    for (int i = 0; i < dt.getRowCount(); i++) {
-        String amountStr = dt.getValueAt(i, 2).toString(); // Get amount as String
-        try {
-            double amount = Double.parseDouble(amountStr); // Convert String to Double
-            total += amount; // Add to total
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing amount: " + amountStr);
-            e.printStackTrace(); 
-        }
-    }
-    return total;
-}
-   public void completeOrder() {
-    System.out.println("Complete Order button clicked."); 
-    Connection con = getCon();
-    if (con == null) {
-        System.out.println("Database connection failed.");
-        return; 
-    }
-
-    String orderItems = getOrderItems();
-    double totalPrice = calculateTotalPrice();
-
-    String sql = "INSERT INTO orders (order_items, total_price, status) VALUES (?, ?, ?)";
-    
-    try (PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-        pstmt.setString(1, orderItems);
-        pstmt.setDouble(2, totalPrice);
-        pstmt.setString(3, "not paid");
-
-        // Execute the insert statement
-        int affectedRows = pstmt.executeUpdate(); 
-
-        if (affectedRows > 0) {
-            ResultSet generatedKeys = pstmt.getGeneratedKeys(); 
-            if (generatedKeys.next()) {
-                int orderId = generatedKeys.getInt(1); 
-                printReceipt(orderId); 
-            } else {
-                System.out.println("No order ID generated.");
-            }
-        } else {
-            System.out.println("Insert failed, no rows affected.");
-        }
-
-        JOptionPane.showMessageDialog(null, "Order completed successfully!");
-    } catch (SQLException e) {
-        e.printStackTrace(); // Print stack trace for debugging
-        JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage());
-    }
-   }
-   
-    
-        public void printReceipt(int orderId) {
-        Date dd = new Date();
-            SimpleDateFormat datef = new SimpleDateFormat("yyyy-mm-dd");
-            SimpleDateFormat timef = new SimpleDateFormat("hh:mm:ss a");
-                String date = datef.format(dd);
-                String time = timef.format(dd);
-                
-            
-        jTextPane1.setText(" \t   Good House Burger \n");
-        jTextPane1.setText(jTextPane1.getText() + "\tErmita, Balayan, Batangas");
-        
-        jTextPane1.setText(jTextPane1.getText() + "\n\nORDER ID: " + orderId );
-        jTextPane1.setText(jTextPane1.getText() + "\n" + date + "                                             " + time);
-        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
-        jTextPane1.setText(jTextPane1.getText() + "\nQTY                ITEM                                        AMT\n");
-        
-        
-            
-            
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            
-            
-                for (int i = 0; i < jTable1.getRowCount(); i++) {
-                    String qty = dt.getValueAt(i, 0).toString();
-                    String itm = dt.getValueAt(i, 1).toString();
-                    String amt = dt.getValueAt(i, 2).toString();
-                    
-                    jTextPane1.setText(jTextPane1.getText()+ qty + "\t"+ itm + "\t" + amt + "\n");
-                }
-                
-        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
-        jTextPane1.setText(jTextPane1.getText() + "\nTOTAL:                                                             " + total.getText());
-        jTextPane1.setText(jTextPane1.getText() + "\n------------------------THANK YOU--------------------------");
-        }
-
-
-    private void btnRiceBowlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRiceBowlActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(0);
-    }//GEN-LAST:event_btnRiceBowlActionPerformed
-
-    private void btnBestieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBestieActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(1);
-    }//GEN-LAST:event_btnBestieActionPerformed
-
-    private void btnComboSnackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComboSnackActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(2);
-    }//GEN-LAST:event_btnComboSnackActionPerformed
-
-    private void btnb1t1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnb1t1ActionPerformed
-        // TODO add your handling code here:
-        jTabbedPane1.setSelectedIndex(3);
-    }//GEN-LAST:event_btnb1t1ActionPerformed
-    
-    public void addTable(int Qty, String Name, double Price) {
-    // Check if the quantity is zero or negative
-    if (Qty <= 0) {
-        JOptionPane.showMessageDialog(null, "Quantity must be greater than zero.", "Error", JOptionPane.ERROR_MESSAGE);
-        return; 
-    }
-
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-    DecimalFormat df = new DecimalFormat("#0.00");
-
-    boolean itemExists = false; 
-
-    // Loop through the table to check for the item
-    for (int row = 0; row < jTable1.getRowCount(); row++) {
-        if (Name.equals(jTable1.getValueAt(row, 1))) {
-            // Update the quantity and total price for the existing item
-            int currentQty = (int) jTable1.getValueAt(row, 0);
-            double currentTotalPrice = Double.parseDouble(jTable1.getValueAt(row, 2).toString());
-
-            int newQty = currentQty + Qty;
-            double newTotalPrice = currentTotalPrice + (Price * Qty);
-
-            // Update the table values
-            jTable1.setValueAt(newQty, row, 0);
-            jTable1.setValueAt(df.format(newTotalPrice), row, 2);
-
-            itemExists = true;
-            break;
-        }
-    }
-
-    // If the item does not exist, add it as a new row
-    if (!itemExists) {
-        Vector<Object> v = new Vector<>();
-        v.add(Qty);
-        v.add(Name);
-        v.add(df.format(Price * Qty)); 
-        dt.addRow(v);
-    }
-}
-
-    
-    public void calculateAmount() {
-        int numOfRow =jTable1.getRowCount();
-        double tot = 0.0;
-        
-        for (int i = 0; i < numOfRow; i++) {
-            double value = Double.valueOf(jTable1.getValueAt(i, 2).toString());
-            
-            tot += value;
-        }
-        
-        DecimalFormat df = new DecimalFormat("#0.00");
-        total.setText(df.format(tot));
-        
-    }
-    
-    private String getOrderItems() {
-    StringBuilder items = new StringBuilder();
-    // Loop through your table model to gather items
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-    for (int i = 0; i < jTable1.getRowCount(); i++) {
-        items.append(dt.getValueAt(i, 1).toString()).append(", ");
-    }
-    return items.toString();
-}
-    
-private double calculateTotalPrice() {
-    double total = 0.0;
-    DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-
-    for (int i = 0; i < dt.getRowCount(); i++) {
-        String amountStr = dt.getValueAt(i, 2).toString(); // Get amount as String
-        try {
-            double amount = Double.parseDouble(amountStr); // Convert String to Double
-            total += amount; // Add to total
-        } catch (NumberFormatException e) {
-            System.out.println("Error parsing amount: " + amountStr);
-            e.printStackTrace(); 
-        }
-    }
-    return total;
-}
-    
-        public void printReceipt(int orderId) {
-        Date dd = new Date();
-            SimpleDateFormat datef = new SimpleDateFormat("yyyy-mm-dd");
-            SimpleDateFormat timef = new SimpleDateFormat("hh:mm:ss a");
-                String date = datef.format(dd);
-                String time = timef.format(dd);
-                
-            
-        jTextPane1.setText(" \t   Good House Burger \n");
-        jTextPane1.setText(jTextPane1.getText() + "\tErmita, Balayan, Batangas");
-        
-        jTextPane1.setText(jTextPane1.getText() + "\n\nORDER ID: " + orderId );
-        jTextPane1.setText(jTextPane1.getText() + "\n" + date + "                                             " + time);
-        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
-        jTextPane1.setText(jTextPane1.getText() + "\nQTY                ITEM                                        AMT\n");
-        
-        
-            
-            
-            DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-            
-            
-                for (int i = 0; i < jTable1.getRowCount(); i++) {
-                    String qty = dt.getValueAt(i, 0).toString();
-                    String itm = dt.getValueAt(i, 1).toString();
-                    String amt = dt.getValueAt(i, 2).toString();
-                    
-                    jTextPane1.setText(jTextPane1.getText()+ qty + "\t"+ itm + "\t" + amt + "\n");
-                }
-                
-        jTextPane1.setText(jTextPane1.getText() + "\n-------------------------------------------------------------------");
-        jTextPane1.setText(jTextPane1.getText() + "\nTOTAL:                                                             " + total.getText());
-        jTextPane1.setText(jTextPane1.getText() + "\n------------------------THANK YOU--------------------------");
-    }
-
-   
-
-public void completeOrder() {
-    System.out.println("Complete Order button clicked."); 
-    Connection con = getCon();
-    if (con == null) {
-        System.out.println("Database connection failed.");
-        return; 
-    }
-
-    String orderItems = getOrderItems();
-    double totalPrice = calculateTotalPrice();
-
-    String sql = "INSERT INTO orders (order_items, total_price, status) VALUES (?, ?, ?)";
-    
-    try (PreparedStatement pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-        pstmt.setString(1, orderItems);
-        pstmt.setDouble(2, totalPrice);
-        pstmt.setString(3, "not paid");
-
-        // Execute the insert statement
-        int affectedRows = pstmt.executeUpdate(); 
-
-        if (affectedRows > 0) {
-            ResultSet generatedKeys = pstmt.getGeneratedKeys(); 
-            if (generatedKeys.next()) {
-                int orderId = generatedKeys.getInt(1); 
-                printReceipt(orderId); 
-            } else {
-                System.out.println("No order ID generated.");
-            }
-        } else {
-            System.out.println("Insert failed, no rows affected.");
-        }
-
-        JOptionPane.showMessageDialog(null, "Order completed successfully!");
-    } catch (SQLException e) {
-        e.printStackTrace(); // Print stack trace for debugging
-        JOptionPane.showMessageDialog(null, "SQL Error: " + e.getMessage());
-    }
-}
-
-
-
-            
-    private void btnAdd1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd1ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner1.getValue().toString());
-        
-        
-        
-        addTable(qty, "Siomai Rice     ", 35.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd1ActionPerformed
-
-    private void btnAdd2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd2ActionPerformed
-        // TODO add your handling code here:
-         int qty = Integer.parseInt(jSpinner2.getValue().toString());
-        
-        
-        
-        addTable(qty, "Chicken Finger Rice", 40.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd2ActionPerformed
-
-    private void btnAdd3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd3ActionPerformed
-        // TODO add your handling code here:
-         int qty = Integer.parseInt(jSpinner3.getValue().toString());
-        
-        
-        
-        addTable(qty, "Shanghai Rice", 40.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd3ActionPerformed
-
-    private void btnAdd4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd4ActionPerformed
-        // TODO add your handling code here:
-         int qty = Integer.parseInt(jSpinner4.getValue().toString());
-        
-        
-        
-        addTable(qty, "Fish Fillet Rice", 40.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd4ActionPerformed
-
-    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
-         DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-
-    
-    int selectedRow = jTable1.getSelectedRow();
-
-    
-    if (selectedRow >= 0) {
-       
-        dt.removeRow(jTable1.convertRowIndexToModel(selectedRow));
-        calculateAmount(); 
-    } else {
-       
-        JOptionPane.showMessageDialog(null, "Please select an order to remove.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }//GEN-LAST:event_btnRemoveActionPerformed
-    
-    
-    
-    
-    private void btnCompleteOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompleteOrderActionPerformed
-                    // TODO add your handling code here:          
-        completeOrder(); 
-    }//GEN-LAST:event_btnCompleteOrderActionPerformed
-    
-    private void totalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_totalActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_totalActionPerformed
-
-    private void btnAdd5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd5ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner5.getValue().toString());
-        
-        
-        
-        addTable(qty, "Small Fries     ", 50.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd5ActionPerformed
-
-    private void btnAdd6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd6ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner6.getValue().toString());
-        
-        
-        
-        addTable(qty, "Big Fries    ", 100.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd6ActionPerformed
-
-    private void btnAdd7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd7ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner7.getValue().toString());
-        
-        
-        
-        addTable(qty, "16oz Fries & Juice", 30.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd7ActionPerformed
-
-    private void btnAdd8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd8ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner8.getValue().toString());
-        
-        
-        
-        addTable(qty, "22oz Fries & Juice", 35.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd8ActionPerformed
-
-    private void btnAdd9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd9ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner9.getValue().toString());
-        
-        
-        
-        addTable(qty, "Combo Snack 160z", 50.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd9ActionPerformed
-
-    private void btnAdd10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd10ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner10.getValue().toString());
-        
-        
-        
-        addTable(qty, "Combo Snack 22oz", 60.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd10ActionPerformed
-
-    private void btnAdd11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd11ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner11.getValue().toString());
-        
-        
-        
-        addTable(qty, "Burger       ", 40.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd11ActionPerformed
-
-    private void btnAdd12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd12ActionPerformed
-        // TODO add your handling code here:
-        int qty = Integer.parseInt(jSpinner12.getValue().toString());
-        
-        
-        
-        addTable(qty, "Burger w/ Cheese", 50.00);
-        calculateAmount();
-        resetQty();
-    }//GEN-LAST:event_btnAdd12ActionPerformed
-
-    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
-        // TODO add your handling code here:
-        
-        DefaultTableModel dt = (DefaultTableModel) jTable1.getModel();
-         dt.setRowCount(0);
-         
-         jTextPane1.setText("");
-         total.setText("");
-    }//GEN-LAST:event_btnClearActionPerformed
-
-    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        try {
-            // TODO add your handling code here:
-            jTextPane1.print();
-        } catch (PrinterException ex) {
-            Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_btnPrintActionPerformed
-    
-    
     
 
 
